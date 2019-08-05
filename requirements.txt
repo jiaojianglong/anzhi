@@ -1,0 +1,12 @@
+Flask
+Flask_Pymongo==2.3.0
+Flask_Sqlalchemy
+Flask_Migrate
+Flask_Script
+Flask_Login
+Flask_Bootstrap
+Flask-WTF==0.14.2
+requests
+lxml==4.4.0
+bs4==0.0.1
+Werkzeug==0.14.1

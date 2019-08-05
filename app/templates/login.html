@@ -1,0 +1,40 @@
+{% extends 'bootstrap/base.html' %}
+
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}用户登录{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/login.css">
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-success alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+        <strong>{{ message }}</strong>
+    </div>
+    {% endfor %}
+    {% block page_content %}
+    <div id="login">
+        <h1 align="center">用户登录</h1>
+        <hr>
+        {{ wtf.quick_form(form,button_map={'submit':'primary'}) }}
+        <div>
+            <div style="margin-top: 5px"><span>没有账号？<a href="{{ url_for('users.register') }}">立即注册</a></span></div>
+
+        </div>
+    </div>
+    {% endblock %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+{% endblock %}

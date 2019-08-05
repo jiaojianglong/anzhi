@@ -1,0 +1,41 @@
+html, body{
+    background-image: url("/static/image/bgImg.jpg");
+    text-align: center;
+    background-size: 100% 100%;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+
+.container{
+    height: 100%;
+}
+
+#login{
+    width: 500px;
+    height: 300px;
+    margin: 0 auto;
+    position: relative;
+    color: #eeee;
+    top: 30%;
+}
+
+#login form{
+    width: 400px;
+    margin: 0 auto;
+}
+
+#login form label{
+    width: 20%;
+    text-align: right;
+}
+
+
+#login form .form-control{
+    display: inline-block;
+    width: 75%;
+}

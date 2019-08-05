@@ -1,0 +1,189 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}基因资讯{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-default" style="border-radius: 0px;">
+  <div class="container">
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+      <ul class="nav navbar-nav navbar-left">
+        {% if current_user.is_authenticated %}
+        <li style="line-height: 50px">
+          <input style="display: inline-block" type="text" class="form-control search-input"
+                 placeholder="Search" aria-label="Search"
+                 aria-describedby="basic-addon2">
+        </li>
+        <li style="line-height: 50px">
+          <button class="btn btn-outline-secondary" type="button" onclick="search()">Search</button>
+        </li>
+        {% endif %}
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {% if current_user.is_authenticated %}
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+             aria-haspopup="true"
+             aria-expanded="false">选项</a>
+          <ul class="dropdown-menu">
+            <li><a href="{{ url_for('users.logout') }}">退出</a></li>
+          </ul>
+        </li>
+
+        {% else %}
+        <li><a href="{{ url_for('users.login') }}">登录</a></li>
+        <li><a href="{{ url_for('users.register') }}">注册</a></li>
+        {% endif %}
+
+
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-success alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+        aria-hidden="true">&times;</span></button>
+    <strong>{{ message }}</strong>
+  </div>
+  {% endfor %}
+  {% block page_content %}
+  <table id="gene_list" data-toggle="table">
+    <thead>
+    <tr>
+      <th data-field="name">Name</th>
+      <th data-field="description">Description</th>
+    </tr>
+    </thead>
+  </table>
+  <table id="transcripts" data-toggle="table">
+    <thead>
+    <tr>
+      <th data-field="Name">Name</th>
+      <th data-field="Transcript ID" data-formatter="ProteinFormat">Transcript ID</th>
+      <th data-field="bp">bp</th>
+      <th data-field="Protein" data-formatter="ProteinFormat">Protein</th>
+      <!--<th data-field="Translation ID">Translation ID</th>-->
+      <th data-field="Biotype" data-formatter="BiotypeFormat">Biotype</th>
+      <th data-field="CCDS" data-formatter="ProteinFormat">CCDS</th>
+      <th data-field="UniProt" data-formatter="ProteinFormat">UniProt</th>
+      <th data-field="RefSeq Match" data-formatter="ProteinFormat">RefSeq Match</th>
+      <th data-field="Flags" data-formatter="FlagsFormat">Flags</th>
+    </tr>
+    </thead>
+  </table>
+  {% endblock %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+
+<script>
+  function search() {
+    var search_text = $(".search-input").val();
+    $.ajax({
+      type: "post",
+      dataType: "html",
+      url: '/gene/message/',
+      data: {message: search_text},
+      success: function (data) {
+        if (data) {
+          var data = $.parseJSON(data);
+          var docs = data["docs"];
+          $('#gene_list').bootstrapTable("load", docs);
+          $('#gene_list').bootstrapTable('refresh');
+        }
+      }
+    });
+  }
+
+  function FlagsFormat(value, row, index) {
+    var html = "";
+    for(i=0;i<value.length;i++){
+      html = html+"<span " +
+          "style='display: inline-block;margin: 0 6px;background-color: #eeeeee'>" +
+          value[i].text + "</span>";
+    }
+    return html
+  }
+  function BiotypeFormat(value, row, index){
+    var html = "<div style='width:5px;height:20px;" +
+        "display:inline-block; margin: 0 5px; background-color: "+value.color +
+        "'></div><span>" + value.text + "</span>";
+    return html
+  }
+  function ProteinFormat(value, row, index){
+    if(value){
+      html = "<a href='"+ value.url +"'>"+value.text+"</a>";
+      return html
+    }
+    return value
+  }
+
+  function initTable() {
+    $("#gene_list").bootstrapTable({
+      method: 'post',
+      contentType: "application/x-www-form-urlencoded",
+      url: '/gene/message/',
+      dataField: "docs",
+      dataType: "json",
+      pagination: true,
+      pageSize: 5,
+      pageNumber: 1,
+      pageList: [5, 10, 15, 20],
+      sidePagination: 'server',
+      queryParams: queryParams,
+      singleSelect: true,
+      onClickRow: ClickRow,
+    });
+  }
+
+  function ClickRow(row, $element) {
+    $("#transcripts").bootstrapTable('removeAll');
+    $.ajax({
+      type: "get",
+      dataType: "html",
+      url: '/gene/transcripts/',
+      data: row,
+      success: function (data) {
+        if (data) {
+          var data = $.parseJSON(data);
+          $('#transcripts').bootstrapTable("load", data.data);
+        }
+      }
+    });
+  }
+
+  function queryParams(params) {
+    var search_value = $(".search-input").val();
+    return {
+      message: search_value,
+      limit: params.limit,
+      offset: params.offset,
+    }
+  }
+
+  $(document).ready(function () {
+    initTable();
+    window.setTimeout(function () {
+      $('[data-dismiss="alert"]').alert('close');
+    }, 2000);
+
+  });
+
+
+</script>
+<script src="/static/js/bootstrap-table.min.js"></script>
+{% endblock %}
