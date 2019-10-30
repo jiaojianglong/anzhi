@@ -9,4 +9,4 @@ Flask-WTF==0.14.2
 requests
 lxml==4.4.0
 bs4==0.0.1
-Werkzeug==0.14.1
+Werkzeug==0.15.3
